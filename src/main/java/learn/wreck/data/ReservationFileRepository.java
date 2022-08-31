@@ -5,6 +5,7 @@ import learn.wreck.models.Guest;
 import learn.wreck.models.Reservation;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class ReservationFileRepository implements ReservationRepository {
     public ReservationFileRepository(String directory){this.directory=directory;}
 
     @Override
-    public List<Reservation> findByDate(LocalDate date) {
+    public List<Reservation> findByHost(Host host) {
         ArrayList<Reservation> result = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(getFilePath(date)))) {
 
@@ -29,7 +30,7 @@ public class ReservationFileRepository implements ReservationRepository {
 
                 String[] fields = line.split(",", -1);
                 if (fields.length == 4) {
-                    result.add(deserialize(fields, date));
+                    result.add(deserialize(fields, host.getId()));
                 }
             }
         } catch (IOException ex) {
@@ -40,11 +41,11 @@ public class ReservationFileRepository implements ReservationRepository {
 
     public Reservation add(Reservation reservation) throws DataException {
 
-        if (item == null) {
+        if (reservation == null) {
             return null;
         }
 
-        List<Reservation> all = findAll();
+        List<Reservation> all = findByDa();
 
         int nextId = all.stream()
                 .mapToInt(Reservation::getId)
@@ -72,44 +73,44 @@ public class ReservationFileRepository implements ReservationRepository {
         return false;
     }
 
-    private String getFilePath(LocalDate date) {
-        return Paths.get(directory, date + ".csv").toString();
+    private String getFilePath(Host host) {
+        return Paths.get(directory, host.getId()+ ".csv").toString();
     }
 
-    private void writeAll(List<Reservation> forages, LocalDate date) throws DataException {
-        try (PrintWriter writer = new PrintWriter(getFilePath(date))) {
+    private void writeAll(List<Reservation> reservations, Host host) throws DataException {
+        try (PrintWriter writer = new PrintWriter(getFilePath(host))) {
 
             writer.println(HEADER);
 
-            for (Reservation item : forages) {
-                writer.println(serialize(item));
+            for (Reservation reservation : reservations) {
+                writer.println(serialize(reservation));
             }
         } catch (FileNotFoundException ex) {
             throw new DataException(ex);
         }
     }
 
-    private String serialize(Reservation item) {
+    private String serialize(Reservation reservation) {
         return String.format("%s,%s,%s,%s",
-                item.getId(),
-                item.getForager().getId(),
-                item.getItem().getId(),
-                item.getKilograms());
+                reservation.getId(),
+                reservation.getStartDate(),
+                reservation.getEndDate(),
+                reservation.getGuest().getId(),
+                reservation.getTotal());
     }
 
-    private Reservation deserialize(String[] fields, LocalDate date) {
+    private Reservation deserialize(String[] fields, Host host) {
         Reservation result = new Reservation();
-        result.setId(fields[0]);
-        result.setDate(date);
-        result.setKilograms(Double.parseDouble(fields[3]));
+        result.setId(Integer.parseInt(fields[0]));
+        result.setHost(host);
+        result.setStartDate(LocalDate.parse((fields[1])));
+        result.setEndDate(LocalDate.parse(fields[2]));
+        result.setTotal(new BigDecimal(fields[4]));
 
-        Forager forager = new Forager();
-        forager.setId(fields[1]);
-        result.setForager(forager);
-
-        Reservation item = new Reservation();
-        item.setId(Integer.parseInt(fields[2]));
-        result.setItem(item);
+        Guest guest = new Guest();
+        guest.setId(Integer.parseInt(fields[3]));
+        result.setGuest(guest);
+        
         return result;
     }
 }
