@@ -22,15 +22,15 @@ public class ReservationFileRepository implements ReservationRepository {
     @Override
     public List<Reservation> findByHost(Host host) {
         ArrayList<Reservation> result = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(getFilePath(date)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(getFilePath(host)))) {
 
             reader.readLine(); // read header
 
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 
                 String[] fields = line.split(",", -1);
-                if (fields.length == 4) {
-                    result.add(deserialize(fields, host.getId()));
+                if (fields.length == 5) {
+                    result.add(deserialize(fields, host));
                 }
             }
         } catch (IOException ex) {
@@ -45,28 +45,28 @@ public class ReservationFileRepository implements ReservationRepository {
             return null;
         }
 
-        List<Reservation> all = findByDa();
+        List<Reservation> all = findByHost(reservation.getHost());
 
         int nextId = all.stream()
                 .mapToInt(Reservation::getId)
                 .max()
                 .orElse(0) + 1;
 
-        item.setId(nextId);
+        reservation.setId(nextId);
 
-        all.add(item);
-        writeAll(all);
+        all.add(reservation);
+        writeAll(all,reservation.getHost());
 
-        return item;
+        return reservation;
     }
 
     @Override
     public boolean edit(Reservation reservation) throws DataException {
-        List<Reservation> all = findByDate(reservation .getDate());
+        List<Reservation> all = findByHost(reservation.getHost());
         for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId().equals(reservation  .getId())) {
+            if (all.get(i).getId()==(reservation.getId())) {
                 all.set(i, reservation );
-                writeAll(all, reservation  .getDate());
+                writeAll(all, reservation.getHost());
                 return true;
             }
         }
@@ -91,7 +91,7 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     private String serialize(Reservation reservation) {
-        return String.format("%s,%s,%s,%s",
+        return String.format("%s,%s,%s,%s,%s",
                 reservation.getId(),
                 reservation.getStartDate(),
                 reservation.getEndDate(),
@@ -110,7 +110,7 @@ public class ReservationFileRepository implements ReservationRepository {
         Guest guest = new Guest();
         guest.setId(Integer.parseInt(fields[3]));
         result.setGuest(guest);
-        
+
         return result;
     }
 }
