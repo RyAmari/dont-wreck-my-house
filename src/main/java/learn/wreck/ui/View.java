@@ -99,6 +99,42 @@ public class View {
         return reservation;
     }
 
+    public Reservation findReservation(List<Reservation> reservations){
+        displayReservations(reservations);
+        if(reservations.size()==0){
+            return null;
+        }
+        int reservationID = io.readInt("Reservation ID: ");
+        for(Reservation reservation: reservations){
+            if(reservation.getId()==reservationID){
+                return reservation;
+            }
+        }
+        System.out.println("Reservation ID " +reservationID + " not found.");
+        return null;
+    }
+
+    public Reservation updateReservation(List<Reservation> reservations){
+        Reservation reservation = findReservation(reservations);
+        if(reservation!= null){
+            update(reservation);
+        }
+        return reservation;
+    }
+
+    private Reservation update(Reservation reservation){
+        LocalDate startDate = io.readLocalDate("Start date [MM/dd/yyyy]: ");
+        if(!startDate.isBefore(LocalDate.now())){
+            reservation.setStartDate(startDate);
+        }
+        LocalDate endDate = io.readLocalDate("End date [MM/dd/yyyy]: ");
+        if(!endDate.isBefore(startDate)){
+            reservation.setEndDate(endDate);
+        }
+        reservation.setTotal(reservation.getTotal(reservation));
+        return reservation;
+    }
+
     public void enterToContinue() {
         io.readString("Press [Enter] to continue.");
     }

@@ -9,6 +9,7 @@ import learn.wreck.models.Host;
 import learn.wreck.models.Guest;
 
 
+import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -150,6 +151,34 @@ public class ReservationService {
                 .multiply(BigDecimal.valueOf(weekendDayDates.size()));
         BigDecimal total = standardRateTotal.add(weekendRateTotal);
         return total;
+    }
+
+    public Result update(Reservation reservation) throws DataException{
+        Result result = validate(reservation);
+        if(!result.isSuccess()){
+            return result;
+        }
+        if (reservation.getId()<=0){
+            result.addErrorMessage(("Reservation 'id' is a required field."));
+        }
+        if(result.isSuccess()){
+            if(reservationRepository.edit(reservation)){
+                result.setPayload(reservation);
+            }
+            else{
+                String message = String.format("Reservation 'id' could not be found.", reservation.getId());
+                result.addErrorMessage(message);
+            }
+        }
+        return result;
+    }
+    public Result cancelReservationById(Reservation reservation) throws DataException {
+        Result result = new Result();
+        if (!reservationRepository.cancel(reservation)){
+            String message = String.format("Reservation 'id' %s could not be found.", reservation.getId());
+            result.addErrorMessage(message);
+        }
+        return result;
     }
 
 

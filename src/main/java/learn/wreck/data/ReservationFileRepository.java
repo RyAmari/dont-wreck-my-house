@@ -74,6 +74,19 @@ public class ReservationFileRepository implements ReservationRepository {
         return false;
     }
 
+    @Override
+    public boolean cancel(Reservation reservation) throws DataException {
+        List<Reservation> all = findByHost(reservation.getHost());
+        for (int i=0; i<all.size(); i++){
+            if(all.get(i).getId()==(reservation.getId())){
+                all.remove(i);
+                writeAll(all, reservation.getHost());
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String getFilePath(Host host) {
         return Paths.get(directory, host.getId()+ ".csv").toString();
     }
