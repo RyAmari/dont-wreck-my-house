@@ -9,5 +9,5 @@ public interface HostRepository {
 
     Host findById(String id);
 
-    List<Host> findByEmail(String email);
+    Host findByEmail(String email);
 }

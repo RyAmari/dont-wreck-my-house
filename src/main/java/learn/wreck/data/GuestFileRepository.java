@@ -41,6 +41,14 @@ public class GuestFileRepository implements GuestRepository{
                 .orElse(null);
     }
 
+    @Override
+    public Guest findByEmail(String email) {
+        return findAll().stream()
+                .filter(i -> i.getEmail() == email)
+                .findFirst()
+                .orElse(null);
+    }
+
     private String serialize(Guest guest) {
         return String.format("%s,%s,%s,%s,%s,%s",
                 guest.getId(),
@@ -57,7 +65,7 @@ public class GuestFileRepository implements GuestRepository{
         result.setFirstName(fields[1]);
         result.setLastName(fields[2]);
         result.setEmail(fields[3]);
-        result.setPhoneNumber(Integer.parseInt(fields[4]));
+        result.setPhoneNumber((fields[4]));
         result.setState(fields[5]);
         return result;
     }

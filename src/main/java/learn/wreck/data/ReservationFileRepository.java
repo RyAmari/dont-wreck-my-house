@@ -34,6 +34,7 @@ public class ReservationFileRepository implements ReservationRepository {
                 }
             }
         } catch (IOException ex) {
+            ex.printStackTrace();
             // don't throw on read
         }
         return result;

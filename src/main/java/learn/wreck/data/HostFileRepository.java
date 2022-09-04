@@ -46,10 +46,10 @@ public class HostFileRepository implements HostRepository{
     }
 
     @Override
-    public List<Host> findByEmail(String email) {
+    public Host findByEmail(String email) {
         return findAll().stream()
-                .filter(i -> i.getState().equalsIgnoreCase(email))
-                .collect(Collectors.toList());
+                .filter(i -> i.getEmail().equalsIgnoreCase(email))
+                .findFirst().orElse(null);
     }
 
     private Host deserialize(String[] fields) {
@@ -57,7 +57,7 @@ public class HostFileRepository implements HostRepository{
         result.setId(fields[0]);
         result.setLastName(fields[1]);
         result.setEmail(fields[2]);
-        result.setPhoneNumber(Integer.parseInt(fields[3]));
+        result.setPhoneNumber(fields[3]);
         result.setAddress(fields[4]);
         result.setCity(fields[5]);
         result.setState(fields[6]);

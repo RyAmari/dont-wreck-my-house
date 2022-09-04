@@ -9,43 +9,162 @@ import learn.wreck.models.Host;
 import learn.wreck.models.Guest;
 
 
+import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Set.*;
+
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final HostRepository hostRepository;
     private final GuestRepository guestRepository;
 
-    public ReservationService(ReservationRepository reservationRepository, HostRepository hostRepository, GuestRepository guestRepository){
+    public ReservationService(ReservationRepository reservationRepository, HostRepository hostRepository, GuestRepository guestRepository) {
         this.reservationRepository = reservationRepository;
-        this.hostRepository=hostRepository;
-        this.guestRepository=guestRepository;
+        this.hostRepository = hostRepository;
+        this.guestRepository = guestRepository;
     }
 
-    public List<Reservation> findByHost(Host host){
-        Map<String, Host> hostMap = hostRepository.findAll().stream().collect(Collectors.toMap(i->i.getId(),i->i));
-        Map<Integer,Guest> guestMap = guestRepository.findAll().stream().collect(Collectors.toMap(i->i.getId(),i->i));
+    public List<Reservation> findByHost(Host host) {
+        Map<String, Host> hostMap = hostRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(i -> i.getId(), i -> i));
+        Map<Integer, Guest> guestMap = guestRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(i -> i.getId(), i -> i));
 
         List<Reservation> result = reservationRepository.findByHost(host);
-        for (Reservation reservation: result){
-            reservation.setHost(hostMap.get(reservation.getHost().getId()));
-            reservation.setGuest(guestMap.get(reservation.getGuest().getId()));
+        for (Reservation reservation : result) {
+            reservation.setHost(hostMap.get(reservation.getHost()
+                    .getId()));
+            reservation.setGuest(guestMap.get(reservation.getGuest()
+                    .getId()));
         }
         return result;
     }
 
-    public Result<Reservation> add(Reservation reservation) throws DataException{
-        Result<Reservation> result=validate(reservation);
-        if(!result.isSuccess()){
+    public Result<Reservation> add(Reservation reservation) throws DataException {
+        Result<Reservation> result = validate(reservation);
+        if (!result.isSuccess()) {
             return result;
         }
 
         result.setPayload(reservationRepository.add(reservation));
         return result;
+    }
+
+    private Result<Reservation> validate(Reservation reservation) {
+        List<Reservation> existingReservations = reservationRepository.findByHost(reservation.getHost());
+        Result<Reservation> result = validateReservationDates(reservation, existingReservations);
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        validateChildrenExist(reservation, result);
+
+        return result;
+    }
+
+    Result<Reservation> validateReservationDates(Reservation newReservation, List<Reservation> existingReservations) {
+        Result<Reservation> result = new Result();
+        if (newReservation == null) {
+            result.addErrorMessage("Reservation cannot be null");
+        }
+        if (!result.isSuccess()) {
+            return result;
+        }
+        if (newReservation.getStartDate() == null) {
+            result.addErrorMessage("Start date cannot be null");
+        } else if (newReservation.getStartDate()
+                .isBefore(LocalDate.now())) {
+            result.addErrorMessage("Start date cannot be in the past.");
+        }
+
+        if (newReservation.getEndDate() == null) {
+            result.addErrorMessage("End date cannot be null");
+        }
+        if (!result.isSuccess()) {
+            return result;
+        }
+        if (newReservation.getStartDate()
+                .isAfter(newReservation.getEndDate())) {
+            result.addErrorMessage("Start date cannot be after end date.");
+        }
+        if (newReservation.getStartDate()
+                .equals(newReservation.getEndDate())) {
+            result.addErrorMessage("Start date cannot be equal to end date.");
+        }
+        for (Reservation existingReservation : existingReservations) {
+            if (newReservation.getStartDate()
+                    .isBefore(existingReservation.getStartDate())) {
+                if (newReservation.getEndDate()
+                        .equals(existingReservation.getStartDate()) ||
+                        newReservation.getEndDate()
+                                .isBefore(existingReservation.getStartDate())) {
+
+                } else {
+                    result.addErrorMessage("Reservation cannot overlap an existing reservation");
+                    break;
+                }
+            } else if (newReservation.getStartDate()
+                    .equals(existingReservation.getEndDate())
+                    || newReservation.getStartDate()
+                    .isAfter(existingReservation.getEndDate())) {
+
+            } else {
+                result.addErrorMessage("Reservation cannot overlap an existing reservation.");
+                break;
+            }
+
+        }
+        return result;
+    }
+
+    private BigDecimal calculateTotal(Reservation reservation) {
+        //need to iterate between the specific days between
+        // the start date and the end date, if they land on
+        // sat or sunday, multiply host-determined weekend rate by 1 or two
+        //depending on if one or both weekend days are used
+        // then add that to the total of the host-determined standard rate
+        List<LocalDate> weekDayDates = new ArrayList<>();
+        List<LocalDate> weekendDayDates = new ArrayList<>();
+        LocalDate startDate = reservation.getStartDate();
+        LocalDate endDate = reservation.getEndDate();
+        Set<DayOfWeek> weekend = EnumSet.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY);
+        while (startDate.isBefore(endDate)) {
+            if (!weekend.contains(startDate.getDayOfWeek())) {
+                weekDayDates.add(startDate);
+            } else {
+                weekendDayDates.add(startDate);
+            }
+            startDate = startDate.plusDays(1);
+        }
+        BigDecimal standardRateTotal = reservation.getHost()
+                .getStandardRate()
+                .multiply(BigDecimal.valueOf(weekDayDates.size()));
+        BigDecimal weekendRateTotal = reservation.getHost()
+                .getWeekendRate()
+                .multiply(BigDecimal.valueOf(weekendDayDates.size()));
+        BigDecimal total = standardRateTotal.add(weekendRateTotal);
+        return total;
+    }
+
+
+    private void validateChildrenExist(Reservation reservation, Result<Reservation> result) {
+
+        if (reservation.getHost()
+                .getId() == null
+                || hostRepository.findById(reservation.getHost()
+                .getId()) == null) {
+            result.addErrorMessage("Host does not exist.");
+        }
+
+        if (guestRepository.findById(reservation.getGuest()
+                .getId()) == null) {
+            result.addErrorMessage("Guest does not exist.");
+        }
     }
 }

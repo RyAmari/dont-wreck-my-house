@@ -6,7 +6,7 @@ public class Host {
     private String id;
     private String lastName;
     private String email;
-    private int phoneNumber;
+    private String phoneNumber;
     private String address;
     private String city;
     private String state;
@@ -38,11 +38,11 @@ public class Host {
         this.email = email;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

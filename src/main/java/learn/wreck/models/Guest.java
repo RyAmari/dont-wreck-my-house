@@ -7,7 +7,7 @@ public class Guest {
     private String firstName;
     private String lastName;
     private String email;
-    private int phoneNumber;
+    private String phoneNumber;
     private String stateAbbr;
 
 
@@ -54,11 +54,11 @@ public class Guest {
         this.stateAbbr = stateAbbr;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 }
