@@ -21,8 +21,6 @@ public class HostFileRepositoryTest {
         Host host=repository.findById("3edda6bc-ab95-49a8-8962-d50b53f84b15");
         assertEquals("Yearnes", host.getLastName());
 
-
-
     }
 
     @Test

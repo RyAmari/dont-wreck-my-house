@@ -40,6 +40,12 @@ public class ReservationFileRepositoryTest {
         List<Reservation> reservations = repository.findByHost(host);
         assertEquals(12, reservations.size());
     }
+//    @Test
+//    void shouldFindHostStandardRate() {
+//        Host host = new Host();
+//        host.setId(hostId);
+//        assertEquals("NY", host.getState());
+//    }
 
     @Test
     void shouldAdd() throws DataException {

@@ -1,9 +1,11 @@
 package learn.wreck.domain;
 
 import learn.wreck.data.*;
+import learn.wreck.models.Host;
 import learn.wreck.models.Reservation;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,6 +156,20 @@ public class ReservationServiceTest {
         reservation.setStartDate(existingReservationEndDate);
         reservation.setEndDate(existingReservationEndDate.plusDays(1));
         Result<Reservation> result = service.validateReservationDates(reservation, existingReservations);
+        assertTrue(result.isSuccess());
+    }
+    @Test
+    void reservationShouldCalculateTotal() {
+        Reservation reservation = new Reservation();
+        Host host = new Host();
+        host.setStandardRate(new BigDecimal(460));
+        host.setWeekendRate(new BigDecimal(500));
+        reservation.setHost(host);
+        reservation.setStartDate(LocalDate.now());
+        reservation.setEndDate(reservation.getStartDate()
+                .plusWeeks(2));
+        Result<Reservation> result = service.validateReservationDates(reservation, existingReservations);
+        assertEquals(6600, reservation.getTotal(reservation));
         assertTrue(result.isSuccess());
     }
 

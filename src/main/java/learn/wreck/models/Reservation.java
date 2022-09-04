@@ -2,8 +2,9 @@ package learn.wreck.models;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.*;
 
 public class Reservation {
 
@@ -62,12 +63,32 @@ public class Reservation {
         this.host = host;
     }
 
-    public BigDecimal getTotal() {
+    public BigDecimal getTotal(Reservation reservation) {
         //need to iterate between the specific days between
         // the start date and the end date, if they land on
         // sat or sunday, multiply host-determined weekend rate by 1 or two
         //depending on if one or both weekend days are used
         // then add that to the total of the host-determined standard rate
+        List<LocalDate> weekDayDates = new ArrayList<>();
+        List<LocalDate> weekendDayDates = new ArrayList<>();
+        LocalDate startDate = reservation.getStartDate();
+        LocalDate endDate = reservation.getEndDate();
+        Set<DayOfWeek> weekend = EnumSet.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY);
+        while (startDate.isBefore(endDate)) {
+            if (!weekend.contains(startDate.getDayOfWeek())) {
+                weekDayDates.add(startDate);
+            } else {
+                weekendDayDates.add(startDate);
+            }
+            startDate = startDate.plusDays(1);
+        }
+        BigDecimal standardRateTotal = reservation.getHost()
+                .getStandardRate()
+                .multiply(BigDecimal.valueOf(weekDayDates.size()));
+        BigDecimal weekendRateTotal = reservation.getHost()
+                .getWeekendRate()
+                .multiply(BigDecimal.valueOf(weekendDayDates.size()));
+        BigDecimal total = standardRateTotal.add(weekendRateTotal);
         return total;
     }
 

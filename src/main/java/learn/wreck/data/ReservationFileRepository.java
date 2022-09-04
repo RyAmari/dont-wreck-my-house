@@ -97,7 +97,7 @@ public class ReservationFileRepository implements ReservationRepository {
                 reservation.getStartDate(),
                 reservation.getEndDate(),
                 reservation.getGuest().getId(),
-                reservation.getTotal());
+                reservation.getTotal(reservation));
     }
 
     private Reservation deserialize(String[] fields, Host host) {
