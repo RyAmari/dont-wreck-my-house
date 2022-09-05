@@ -43,4 +43,9 @@ public class ReservationRepositoryDouble implements ReservationRepository {
     public boolean edit(Reservation reservation) throws DataException {
         return false;
     }
+
+    @Override
+    public boolean cancel(Reservation reservation) throws DataException, DataException {
+        return false;
+    }
 }

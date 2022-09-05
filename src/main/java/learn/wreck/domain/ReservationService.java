@@ -7,6 +7,7 @@ import learn.wreck.data.GuestRepository;
 import learn.wreck.models.Reservation;
 import learn.wreck.models.Host;
 import learn.wreck.models.Guest;
+import org.springframework.stereotype.Service;
 
 
 import javax.xml.crypto.Data;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Set.*;
-
+@Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -125,11 +126,6 @@ public class ReservationService {
     }
 
     private BigDecimal calculateTotal(Reservation reservation) {
-        //need to iterate between the specific days between
-        // the start date and the end date, if they land on
-        // sat or sunday, multiply host-determined weekend rate by 1 or two
-        //depending on if one or both weekend days are used
-        // then add that to the total of the host-determined standard rate
         List<LocalDate> weekDayDates = new ArrayList<>();
         List<LocalDate> weekendDayDates = new ArrayList<>();
         LocalDate startDate = reservation.getStartDate();

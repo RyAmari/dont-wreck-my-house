@@ -1,17 +1,19 @@
 package learn.wreck.data;
 
 import learn.wreck.models.Guest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@Repository
 public class GuestFileRepository implements GuestRepository{
 
     private static final String HEADER ="guest_id,first_name,last_name,email,phone,state";
     private final String filePath;
 
-    public GuestFileRepository(String filePath){this.filePath=filePath;}
+    public GuestFileRepository(@Value("${guestFilePath}") String filePath){this.filePath=filePath;}
 
     @Override
     public List<Guest> findAll() {

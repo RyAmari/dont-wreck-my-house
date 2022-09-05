@@ -1,6 +1,5 @@
 package learn.wreck.models;
 
-
 public class Guest {
 
     private int id;

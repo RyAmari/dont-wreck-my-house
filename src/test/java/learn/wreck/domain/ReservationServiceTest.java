@@ -169,7 +169,7 @@ public class ReservationServiceTest {
         reservation.setEndDate(reservation.getStartDate()
                 .plusWeeks(2));
         Result<Reservation> result = service.validateReservationDates(reservation, existingReservations);
-        assertEquals(6600, reservation.getTotal(reservation));
+        assertEquals(new BigDecimal(6600), reservation.getTotal(reservation));
         assertTrue(result.isSuccess());
     }
 

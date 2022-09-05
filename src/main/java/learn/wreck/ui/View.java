@@ -3,12 +3,13 @@ package learn.wreck.ui;
 import learn.wreck.models.Guest;
 import learn.wreck.models.Reservation;
 import learn.wreck.models.Host;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Component
 public class View {
     private final ConsoleIO io;
 
@@ -28,7 +29,7 @@ public class View {
             max = Math.max(max, option.getValue());
         }
 
-        String message = String.format("Select [%s-%s]: ", min, max - 1);
+        String message = String.format("Select [%s-%s]: ", min, max);
         return MainMenuOption.fromValue(io.readInt(message, min, max));
     }
     public String getReservationHost() {
@@ -66,7 +67,7 @@ public class View {
 
     public Guest selectGuest(List<Guest> guests) {
         if (guests.size() == 0) {
-            io.println("No hosts found");
+            io.println("No guests found");
             return null;
         }
 
@@ -167,7 +168,7 @@ public class View {
             return;
         }
         for (Reservation reservation : reservations) {
-            io.printf("%s, %s - %s, Guest: %s, %s, Email: %s",
+            io.printf("%s, %s - %s, Guest: %s, %s, Email: %s%n",
                     reservation.getId(),
                     reservation.getStartDate(),
                     reservation.getEndDate(),

@@ -8,14 +8,22 @@ import learn.wreck.domain.Result;
 import learn.wreck.models.Reservation;
 import learn.wreck.models.Host;
 import learn.wreck.models.Guest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Scanner;
 
+@Component
 public class Controller {
+    @Autowired
     private final HostService hostService;
+    @Autowired
     private final ReservationService reservationService;
+    @Autowired
     private final GuestService guestService;
+    @Autowired
     private final View view;
 
     public Controller(HostService hostService, ReservationService reservationService, GuestService guestService, View view) {
@@ -65,6 +73,7 @@ public class Controller {
     }
 
     private void makeReservation() throws DataException {
+        Scanner console = new Scanner(System.in);
         view.displayHeader(MainMenuOption.MAKE_RESERVATION.getMessage());
         Host host = getHost();
         if (host == null) {
@@ -79,8 +88,18 @@ public class Controller {
         if (!result.isSuccess()) {
             view.displayStatus(false, result.getErrorMessages());
         } else {
-            String successMessage = String.format("Reservation %s created.", result.getPayload().getId());
-            view.displayStatus(true, successMessage);
+            String userChoice;
+            do{
+                System.out.printf("Start date: %s%n ",reservation.getStartDate());
+                System.out.printf("End date: %s%n ",reservation.getEndDate());
+                System.out.printf("[Total]: %s%n ",reservation.getTotal(reservation));
+                System.out.println("Is this okay? [Y/N]: ");
+                userChoice = console.nextLine();
+                if(userChoice.equalsIgnoreCase("y")){
+                    String successMessage = String.format("Reservation %s created.", result.getPayload().getId());
+                    view.displayStatus(true, successMessage);
+                }
+            } while(!userChoice.equalsIgnoreCase("y"));
         }
     }
 

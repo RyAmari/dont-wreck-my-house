@@ -1,6 +1,8 @@
 package learn.wreck.data;
 
 import learn.wreck.models.Host;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,11 +11,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Repository
 public class HostFileRepository implements HostRepository{
     private final String filePath;
 
-    public HostFileRepository(String filePath){
+    public HostFileRepository(@Value("${hostFilePath}") String filePath){
         this.filePath=filePath;
     }
 

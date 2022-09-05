@@ -3,6 +3,8 @@ package learn.wreck.data;
 import learn.wreck.models.Host;
 import learn.wreck.models.Guest;
 import learn.wreck.models.Reservation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -10,14 +12,14 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+@Repository
 public class ReservationFileRepository implements ReservationRepository {
 
     private static final String HEADER="id,start_date,end_date,guest_id,total";
 
     private final String directory;
 
-    public ReservationFileRepository(String directory){this.directory=directory;}
+    public ReservationFileRepository(@Value("${reservationFilePath}") String directory){this.directory=directory;}
 
     @Override
     public List<Reservation> findByHost(Host host) {
