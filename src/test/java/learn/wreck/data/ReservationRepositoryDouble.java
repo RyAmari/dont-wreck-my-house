@@ -41,11 +41,11 @@ public class ReservationRepositoryDouble implements ReservationRepository {
 
     @Override
     public boolean edit(Reservation reservation) throws DataException {
-        return false;
+        return reservation.getId()==13;
     }
 
     @Override
     public boolean cancel(Reservation reservation) throws DataException, DataException {
-        return false;
+        return reservation.getId()==13 ;
     }
 }

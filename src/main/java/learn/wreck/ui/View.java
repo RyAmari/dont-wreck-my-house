@@ -3,6 +3,7 @@ package learn.wreck.ui;
 import learn.wreck.models.Guest;
 import learn.wreck.models.Reservation;
 import learn.wreck.models.Host;
+import learn.wreck.domain.Result;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -56,7 +57,7 @@ public class View {
             io.println("More than 5 hosts found. Showing first 25. Please refine your search.");
         }
         io.println("0: Exit");
-        String message = String.format("Select a host by their index [0-%s]: ", index);
+        String message = String.format("Select a host by their index [1-%s]: ", index);
 
         index = io.readInt(message, 0, index);
         if (index <= 0) {
@@ -78,10 +79,10 @@ public class View {
         index--;
 
         if (guests.size() > 5) {
-            io.println("More than 5 hosts found. Showing first 25. Please refine your search.");
+            io.println("More than 5 hosts found. Showing first 5. Please refine your search.");
         }
         io.println("0: Exit");
-        String message = String.format("Select a host by their index [0-%s]: ", index);
+        String message = String.format("Select a guest by their index [1-%s]: ", index);
 
         index = io.readInt(message, 0, index);
         if (index <= 0) {
@@ -133,6 +134,16 @@ public class View {
             reservation.setEndDate(endDate);
         }
         reservation.setTotal(reservation.getTotal(reservation));
+        return reservation;
+    }
+    public Reservation cancelReservation(List<Reservation> reservations){
+        Reservation reservation = findReservation(reservations);
+        if(reservation!= null){
+            cancel(reservation);
+        }
+        return reservation;
+    }
+    private Reservation cancel(Reservation reservation){
         return reservation;
     }
 

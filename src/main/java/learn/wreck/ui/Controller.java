@@ -92,7 +92,7 @@ public class Controller {
             do{
                 System.out.printf("Start date: %s%n ",reservation.getStartDate());
                 System.out.printf("End date: %s%n ",reservation.getEndDate());
-                System.out.printf("[Total]: %s%n ",reservation.getTotal(reservation));
+                System.out.printf("[Total]: $%s%n ",reservation.getTotal(reservation));
                 System.out.println("Is this okay? [Y/N]: ");
                 userChoice = console.nextLine();
                 if(userChoice.equalsIgnoreCase("y")){
@@ -104,6 +104,7 @@ public class Controller {
     }
 
     private void editReservation() throws DataException {
+        Scanner console = new Scanner(System.in);
         view.displayHeader(MainMenuOption.EDIT_RESERVATION.getMessage());
         String hostEmail = view.getReservationHost();
         List<Host> hosts = hostService.findByEmail(hostEmail);
@@ -117,8 +118,18 @@ public class Controller {
         if (!result.isSuccess()) {
             view.displayStatus(false, result.getErrorMessages());
         } else {
-            String successMessage = String.format("Reservation %s updated.", reservation.getId());
-            view.displayStatus(true, successMessage);
+            String userChoice;
+            do{
+                System.out.printf("Start date: %s%n ",reservation.getStartDate());
+                System.out.printf("End date: %s%n ",reservation.getEndDate());
+                System.out.printf("[Total]: $%s%n ",reservation.getTotal(reservation));
+                System.out.println("Is this okay? [Y/N]: ");
+                userChoice = console.nextLine();
+                if(userChoice.equalsIgnoreCase("y")){
+                    String successMessage = String.format("Reservation %s updated.", reservation.getId());
+                    view.displayStatus(true, successMessage);
+                }
+            } while(!userChoice.equalsIgnoreCase("y"));
         }
     }
 
@@ -128,7 +139,7 @@ public class Controller {
         List<Host> hosts = hostService.findByEmail(hostEmail);
         List<Reservation> reservations = reservationService.findByHost(hosts.get(0));
 
-        Reservation reservation = view.updateReservation(reservations);
+        Reservation reservation = view.cancelReservation(reservations);
         if(reservation==null){
             return;
         }
