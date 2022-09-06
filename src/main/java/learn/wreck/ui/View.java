@@ -137,7 +137,7 @@ public class View {
         return reservation;
     }
     public Reservation cancelReservation(List<Reservation> reservations){
-        Reservation reservation = findReservation(reservations);
+        Reservation reservation = findReservationForCancel(reservations);
         if(reservation!= null){
             cancel(reservation);
         }
@@ -189,6 +189,41 @@ public class View {
                             .getLastName(),
                     reservation.getGuest()
                             .getEmail());
+        }
+    }
+    public Reservation findReservationForCancel(List<Reservation> reservations){
+        displayReservationsForCancel(reservations);
+        if(reservations.size()==0){
+            return null;
+        }
+        int reservationID = io.readInt("Reservation ID: ");
+        for(Reservation reservation: reservations){
+            if(reservation.getId()==reservationID){
+                return reservation;
+            }
+        }
+        System.out.println("Reservation ID " +reservationID + " not found.");
+        return null;
+    }
+    public void displayReservationsForCancel(List<Reservation> reservations) {
+        if (reservations == null || reservations.isEmpty()) {
+            io.println("No reservations found.");
+            return;
+        }
+        for (Reservation reservation : reservations) {
+            if (!reservation.getEndDate()
+                    .isBefore(LocalDate.now())) {
+                io.printf("%s, %s - %s, Guest: %s, %s, Email: %s%n",
+                        reservation.getId(),
+                        reservation.getStartDate(),
+                        reservation.getEndDate(),
+                        reservation.getGuest()
+                                .getFirstName(),
+                        reservation.getGuest()
+                                .getLastName(),
+                        reservation.getGuest()
+                                .getEmail());
+            }
         }
     }
 }
