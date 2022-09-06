@@ -175,13 +175,13 @@ public class ReservationServiceTest {
 
     @Test
     void reservationCanEndOnSameDayExistingReservationStarts() {
-        fail("Not implemented");
+        Reservation reservation = new Reservation();
+        reservation.setStartDate(existingReservationStartDate.minusDays(2));
+        reservation.setEndDate(existingReservationStartDate.minusDays(1));
+        Result<Reservation> result = service.validateReservationDates(reservation, existingReservations);
+        assertTrue(result.isSuccess());
     }
 
-    @Test
-    void reservationCannotExistInExistingReservationEnds() {
-        fail("Not implemented");
-    }
 
     @Test
     void reservationCannotEndAfterExistingStartDate() {
@@ -190,6 +190,10 @@ public class ReservationServiceTest {
 
     @Test
     void reservationCannotWhollyContainExistingReservation() {
-        fail("Not implemented");
+        Reservation reservation = new Reservation();
+        reservation.setStartDate(existingReservationStartDate.minusDays(1));
+        reservation.setEndDate(existingReservationEndDate.plusDays(1));
+        Result<Reservation> result = service.validateReservationDates(reservation, existingReservations);
+        assertFalse(result.isSuccess());
     }
 }
