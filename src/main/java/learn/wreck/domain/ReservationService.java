@@ -125,30 +125,6 @@ public class ReservationService {
         return result;
     }
 
-    private BigDecimal calculateTotal(Reservation reservation) {
-        List<LocalDate> weekDayDates = new ArrayList<>();
-        List<LocalDate> weekendDayDates = new ArrayList<>();
-        LocalDate startDate = reservation.getStartDate();
-        LocalDate endDate = reservation.getEndDate();
-        Set<DayOfWeek> weekend = EnumSet.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY);
-        while (startDate.isBefore(endDate)) {
-            if (!weekend.contains(startDate.getDayOfWeek())) {
-                weekDayDates.add(startDate);
-            } else {
-                weekendDayDates.add(startDate);
-            }
-            startDate = startDate.plusDays(1);
-        }
-        BigDecimal standardRateTotal = reservation.getHost()
-                .getStandardRate()
-                .multiply(BigDecimal.valueOf(weekDayDates.size()));
-        BigDecimal weekendRateTotal = reservation.getHost()
-                .getWeekendRate()
-                .multiply(BigDecimal.valueOf(weekendDayDates.size()));
-        BigDecimal total = standardRateTotal.add(weekendRateTotal);
-        return total;
-    }
-
     public Result update(Reservation reservation) throws DataException{
         Result result = validate(reservation);
         if(!result.isSuccess()){
