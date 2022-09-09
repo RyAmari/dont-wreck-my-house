@@ -65,7 +65,7 @@ public class ReservationFileRepositoryTest {
         guest.setId(702);
         reservation.setGuest(guest);
         Host host = new Host();
-        host.setId(hostId);
+       host.setId(hostId);
         reservation.setHost(host);
         repository.add(reservation);
         assertEquals(13,reservation.getId());
@@ -93,10 +93,10 @@ public class ReservationFileRepositoryTest {
         boolean success = repository.edit(reservation);
         assertTrue(success);
 
-        Reservation actual = repository.findByHost(host).get(13);
+        Reservation actual = repository.findByHost(host).get(11);
         assertNotNull(actual);
-        assertEquals("01/14/2024",actual.getStartDate());
-        assertEquals("01/21/2024",actual.getEndDate());
+        assertEquals(LocalDate.of(2024,01,14),actual.getStartDate());
+        assertEquals(LocalDate.of(2024,01,21),actual.getEndDate());
 
     }
     @Test

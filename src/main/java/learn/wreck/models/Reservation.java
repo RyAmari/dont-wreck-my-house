@@ -69,6 +69,9 @@ public class Reservation {
         // sat or sunday, multiply host-determined weekend rate by 1 or two
         //depending on if one or both weekend days are used
         // then add that to the total of the host-determined standard rate
+        if(this.total!=null){
+            return total;
+        }
         List<LocalDate> weekDayDates = new ArrayList<>();
         List<LocalDate> weekendDayDates = new ArrayList<>();
         LocalDate startDate = reservation.getStartDate();
@@ -82,14 +85,17 @@ public class Reservation {
             }
             startDate = startDate.plusDays(1);
         }
+        if (reservation.getHost()==null || reservation.getHost().getStandardRate()==null){
+            return BigDecimal.ZERO;
+        }
         BigDecimal standardRateTotal = reservation.getHost()
                 .getStandardRate()
                 .multiply(BigDecimal.valueOf(weekDayDates.size()));
         BigDecimal weekendRateTotal = reservation.getHost()
                 .getWeekendRate()
                 .multiply(BigDecimal.valueOf(weekendDayDates.size()));
-        BigDecimal total = standardRateTotal.add(weekendRateTotal);
-        return total;
+         this.total = standardRateTotal.add(weekendRateTotal);
+        return this.total;
     }
 
     public void setTotal(BigDecimal total) {

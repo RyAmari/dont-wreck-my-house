@@ -10,13 +10,11 @@ import learn.wreck.models.Guest;
 import org.springframework.stereotype.Service;
 
 
-import javax.xml.crypto.Data;
-import java.math.BigDecimal;
-import java.time.DayOfWeek;
+
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Set.*;
+
 @Service
 public class ReservationService {
 
@@ -48,13 +46,18 @@ public class ReservationService {
         return result;
     }
 
-    public Result<Reservation> add(Reservation reservation) throws DataException {
+    public Result<Reservation> add(Reservation reservation) {
         Result<Reservation> result = validate(reservation);
         if (!result.isSuccess()) {
             return result;
         }
-
-        result.setPayload(reservationRepository.add(reservation));
+        if(result.isSuccess()) {
+            try {
+                result.setPayload(reservationRepository.add(reservation));
+            } catch (DataException e) {
+                result.addErrorMessage(e.getMessage());
+            }
+        }
         return result;
     }
 
@@ -100,6 +103,9 @@ public class ReservationService {
             result.addErrorMessage("Start date cannot be equal to end date.");
         }
         for (Reservation existingReservation : existingReservations) {
+            if (existingReservation.getId() == newReservation.getId()) {
+                continue;
+            }
             if (newReservation.getStartDate()
                     .isBefore(existingReservation.getStartDate())) {
                 if (newReservation.getEndDate()
@@ -125,28 +131,39 @@ public class ReservationService {
         return result;
     }
 
-    public Result update(Reservation reservation) throws DataException{
+    public Result update(Reservation reservation) {
         Result result = validate(reservation);
-        if(!result.isSuccess()){
+        boolean isSuccess = false;
+        if (!result.isSuccess()) {
             return result;
         }
-        if (reservation.getId()<=0){
+        if (reservation.getId() <= 0) {
             result.addErrorMessage(("Reservation 'id' is a required field."));
         }
-        if(result.isSuccess()){
-            if(reservationRepository.edit(reservation)){
+        if (result.isSuccess()) {
+            try {
+                isSuccess = reservationRepository.edit(reservation);
                 result.setPayload(reservation);
+            } catch (DataException e) {
+                result.addErrorMessage(e.getMessage());
             }
-            else{
+            if (!isSuccess) {
                 String message = String.format("Reservation 'id' could not be found.", reservation.getId());
                 result.addErrorMessage(message);
             }
         }
         return result;
     }
-    public Result cancelReservationById(Reservation reservation) throws DataException {
+
+    public Result cancelReservationById(Reservation reservation) {
         Result result = new Result();
-        if (!reservationRepository.cancel(reservation)){
+        boolean isSuccess = false;
+        try {
+            isSuccess = reservationRepository.cancel(reservation);
+        } catch (DataException e) {
+            result.addErrorMessage(e.getMessage());
+        }
+        if (!isSuccess) {
             String message = String.format("Reservation 'id' %s could not be found.", reservation.getId());
             result.addErrorMessage(message);
         }

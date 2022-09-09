@@ -182,12 +182,6 @@ public class ReservationServiceTest {
         assertTrue(result.isSuccess());
     }
 
-
-    @Test
-    void reservationCannotEndAfterExistingStartDate() {
-        fail("Not implemented");
-    }
-
     @Test
     void reservationCannotWhollyContainExistingReservation() {
         Reservation reservation = new Reservation();
