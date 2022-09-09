@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+               https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="reservationRepository" class="learn.wreck.data.ReservationFileRepository">
+    </bean>
+    <bean id="reservationService" class="learn.wreck.domain.ReservationService">
+        <constructor-arg ref="reservationRepository"/>
+    </bean>
+    <bean id="hostRepository" class="learn.wreck.data.HostFileRepository">
+    </bean>
+    <bean id="hostService" class="learn.wreck.domain.HostService">
+        <constructor-arg ref="hostRepository"/>
+    </bean>
+    <bean id="guestRepository" class="learn.wreck.data.GuestFileRepository">
+    </bean>
+    <bean id="guestService" class="learn.wreck.domain.GuestService">
+        <constructor-arg ref="guestRepository"/>
+    </bean>
+    <bean id="io" class="learn.wreck.ui.ConsoleIO"/>
+    <bean id="view" class="learn.wreck.ui.View">
+        <constructor-arg ref="io"/>
+    </bean>
+    <bean id="controller" class="learn.wreck.ui.Controller">
+        <constructor-arg ref="view"/>
+        <constructor-arg ref="reservationService"/>
+        <constructor-arg ref="hostService"/>
+        <constructor-arg ref="guestService"/>
+    </bean>
+</beans>
+
+
